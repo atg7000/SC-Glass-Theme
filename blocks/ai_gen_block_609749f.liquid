@@ -1,0 +1,990 @@
+{% doc %}
+  @prompt
+    Create 5 accordion/dropdown FAQ blocks for the FAQ page only, each with a category title header and collapsible question/answer items. Questions expand on click with a + or arrow toggle icon. Categories are: Shipping, Returns & Exchanges, Orders & Account, Fins & Sizing, Rainbow Fin Company.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-faq-accordion-{{ ai_gen_id }} {
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    display: block;
+  }
+
+  .ai-faq-category-{{ ai_gen_id }} {
+    margin-bottom: {{ block.settings.category_spacing }}px;
+  }
+
+  .ai-faq-category-{{ ai_gen_id }}:last-child {
+    margin-bottom: 0;
+  }
+
+  .ai-faq-category-header-{{ ai_gen_id }} {
+    font-size: {{ block.settings.category_title_size }}px;
+    font-weight: 600;
+    margin-bottom: {{ block.settings.category_title_spacing }}px;
+    color: {{ block.settings.category_title_color }};
+    text-transform: {{ block.settings.category_title_case }};
+  }
+
+  .ai-faq-item-{{ ai_gen_id }} {
+    border-bottom: {{ block.settings.item_border_width }}px solid {{ block.settings.item_border_color }};
+  }
+
+  .ai-faq-item-{{ ai_gen_id }}:last-child {
+    border-bottom: none;
+  }
+
+  .ai-faq-question-{{ ai_gen_id }} {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: {{ block.settings.question_padding }}px 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    text-align: left;
+    font-size: {{ block.settings.question_size }}px;
+    font-weight: 500;
+    color: {{ block.settings.question_color }};
+    transition: color 0.3s ease;
+  }
+
+  .ai-faq-question-{{ ai_gen_id }}:hover {
+    color: {{ block.settings.question_hover_color }};
+  }
+
+  .ai-faq-question-text-{{ ai_gen_id }} {
+    flex: 1;
+    padding-right: 16px;
+  }
+
+  .ai-faq-icon-{{ ai_gen_id }} {
+    flex-shrink: 0;
+    width: {{ block.settings.icon_size }}px;
+    height: {{ block.settings.icon_size }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+    color: {{ block.settings.icon_color }};
+  }
+
+  .ai-faq-icon-{{ ai_gen_id }} svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .ai-faq-item-{{ ai_gen_id }}.active .ai-faq-icon-{{ ai_gen_id }} {
+    transform: rotate({% if block.settings.icon_style == 'plus' %}45deg{% else %}180deg{% endif %});
+  }
+
+  .ai-faq-answer-{{ ai_gen_id }} {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0;
+  }
+
+  .ai-faq-answer-content-{{ ai_gen_id }} {
+    font-size: {{ block.settings.answer_size }}px;
+    line-height: 1.6;
+    color: {{ block.settings.answer_color }};
+  }
+
+  .ai-faq-item-{{ ai_gen_id }}.active .ai-faq-answer-{{ ai_gen_id }} {
+    max-height: 1000px;
+    padding-bottom: {{ block.settings.answer_padding }}px;
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-faq-accordion-{{ ai_gen_id }} {
+      width: 100%;
+    }
+  }
+{% endstyle %}
+
+<faq-accordion-{{ ai_gen_id }} class="ai-faq-accordion-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  {% if block.settings.category_1_enabled %}
+    <div class="ai-faq-category-{{ ai_gen_id }}">
+      {% if block.settings.category_1_title != blank %}
+        <h3 class="ai-faq-category-header-{{ ai_gen_id }}">{{ block.settings.category_1_title }}</h3>
+      {% endif %}
+      
+      {% if block.settings.category_1_q1 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_1_q1 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_1_a1 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_1_q2 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_1_q2 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_1_a2 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_1_q3 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_1_q3 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_1_a3 }}</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if block.settings.category_2_enabled %}
+    <div class="ai-faq-category-{{ ai_gen_id }}">
+      {% if block.settings.category_2_title != blank %}
+        <h3 class="ai-faq-category-header-{{ ai_gen_id }}">{{ block.settings.category_2_title }}</h3>
+      {% endif %}
+      
+      {% if block.settings.category_2_q1 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_2_q1 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_2_a1 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_2_q2 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_2_q2 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_2_a2 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_2_q3 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_2_q3 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_2_a3 }}</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if block.settings.category_3_enabled %}
+    <div class="ai-faq-category-{{ ai_gen_id }}">
+      {% if block.settings.category_3_title != blank %}
+        <h3 class="ai-faq-category-header-{{ ai_gen_id }}">{{ block.settings.category_3_title }}</h3>
+      {% endif %}
+      
+      {% if block.settings.category_3_q1 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_3_q1 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_3_a1 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_3_q2 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_3_q2 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_3_a2 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_3_q3 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_3_q3 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_3_a3 }}</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if block.settings.category_4_enabled %}
+    <div class="ai-faq-category-{{ ai_gen_id }}">
+      {% if block.settings.category_4_title != blank %}
+        <h3 class="ai-faq-category-header-{{ ai_gen_id }}">{{ block.settings.category_4_title }}</h3>
+      {% endif %}
+      
+      {% if block.settings.category_4_q1 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_4_q1 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_4_a1 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_4_q2 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_4_q2 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_4_a2 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_4_q3 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_4_q3 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_4_a3 }}</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+
+  {% if block.settings.category_5_enabled %}
+    <div class="ai-faq-category-{{ ai_gen_id }}">
+      {% if block.settings.category_5_title != blank %}
+        <h3 class="ai-faq-category-header-{{ ai_gen_id }}">{{ block.settings.category_5_title }}</h3>
+      {% endif %}
+      
+      {% if block.settings.category_5_q1 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_5_q1 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_5_a1 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_5_q2 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_5_q2 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_5_a2 }}</div>
+          </div>
+        </div>
+      {% endif %}
+
+      {% if block.settings.category_5_q3 != blank %}
+        <div class="ai-faq-item-{{ ai_gen_id }}" data-faq-item>
+          <button class="ai-faq-question-{{ ai_gen_id }}" aria-expanded="false">
+            <span class="ai-faq-question-text-{{ ai_gen_id }}">{{ block.settings.category_5_q3 }}</span>
+            <span class="ai-faq-icon-{{ ai_gen_id }}">
+              {% if block.settings.icon_style == 'plus' %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+              {% else %}
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              {% endif %}
+            </span>
+          </button>
+          <div class="ai-faq-answer-{{ ai_gen_id }}">
+            <div class="ai-faq-answer-content-{{ ai_gen_id }}">{{ block.settings.category_5_a3 }}</div>
+          </div>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</faq-accordion-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class FaqAccordion{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+      }
+
+      connectedCallback() {
+        this.items = this.querySelectorAll('[data-faq-item]');
+        this.setupEventListeners();
+      }
+
+      setupEventListeners() {
+        this.items.forEach((item) => {
+          const button = item.querySelector('.ai-faq-question-{{ ai_gen_id }}');
+          const answer = item.querySelector('.ai-faq-answer-{{ ai_gen_id }}');
+
+          button.addEventListener('click', () => {
+            const isActive = item.classList.contains('active');
+            
+            item.classList.toggle('active');
+            button.setAttribute('aria-expanded', !isActive);
+          });
+        });
+      }
+    }
+
+    customElements.define('faq-accordion-{{ ai_gen_id }}', FaqAccordion{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "FAQ accordion",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "category_spacing",
+      "label": "Category spacing",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "header",
+      "content": "Category titles"
+    },
+    {
+      "type": "range",
+      "id": "category_title_size",
+      "label": "Size",
+      "min": 16,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "category_title_spacing",
+      "label": "Bottom spacing",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "category_title_color",
+      "label": "Color",
+      "default": "#000000"
+    },
+    {
+      "type": "select",
+      "id": "category_title_case",
+      "label": "Text case",
+      "options": [
+        {
+          "value": "none",
+          "label": "Default"
+        },
+        {
+          "value": "uppercase",
+          "label": "Uppercase"
+        }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "header",
+      "content": "Questions"
+    },
+    {
+      "type": "range",
+      "id": "question_size",
+      "label": "Size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "question_padding",
+      "label": "Padding",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "question_color",
+      "label": "Color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "question_hover_color",
+      "label": "Hover color",
+      "default": "#a42325"
+    },
+    {
+      "type": "header",
+      "content": "Answers"
+    },
+    {
+      "type": "range",
+      "id": "answer_size",
+      "label": "Size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "answer_padding",
+      "label": "Bottom padding",
+      "min": 10,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "color",
+      "id": "answer_color",
+      "label": "Color",
+      "default": "#1a1a1a"
+    },
+    {
+      "type": "header",
+      "content": "Icons"
+    },
+    {
+      "type": "select",
+      "id": "icon_style",
+      "label": "Icon style",
+      "options": [
+        {
+          "value": "plus",
+          "label": "Plus"
+        },
+        {
+          "value": "arrow",
+          "label": "Arrow"
+        }
+      ],
+      "default": "plus"
+    },
+    {
+      "type": "range",
+      "id": "icon_size",
+      "label": "Size",
+      "min": 16,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "icon_color",
+      "label": "Color",
+      "default": "#000000"
+    },
+    {
+      "type": "header",
+      "content": "Borders"
+    },
+    {
+      "type": "range",
+      "id": "item_border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "item_border_color",
+      "label": "Border color",
+      "default": "#e6e6e6"
+    },
+    {
+      "type": "header",
+      "content": "Shipping"
+    },
+    {
+      "type": "checkbox",
+      "id": "category_1_enabled",
+      "label": "Enable category",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "category_1_title",
+      "label": "Category title",
+      "default": "Shipping"
+    },
+    {
+      "type": "text",
+      "id": "category_1_q1",
+      "label": "Question 1",
+      "default": "How long does shipping take?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_1_a1",
+      "label": "Answer 1",
+      "default": "Standard shipping typically takes 5-7 business days. Express shipping is available for 2-3 business days."
+    },
+    {
+      "type": "text",
+      "id": "category_1_q2",
+      "label": "Question 2",
+      "default": "Do you ship internationally?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_1_a2",
+      "label": "Answer 2",
+      "default": "Yes, we ship to most countries worldwide. International shipping times vary by destination."
+    },
+    {
+      "type": "text",
+      "id": "category_1_q3",
+      "label": "Question 3",
+      "default": "What are the shipping costs?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_1_a3",
+      "label": "Answer 3",
+      "default": "Shipping costs are calculated at checkout based on your location and selected shipping method."
+    },
+    {
+      "type": "header",
+      "content": "Returns & exchanges"
+    },
+    {
+      "type": "checkbox",
+      "id": "category_2_enabled",
+      "label": "Enable category",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "category_2_title",
+      "label": "Category title",
+      "default": "Returns & Exchanges"
+    },
+    {
+      "type": "text",
+      "id": "category_2_q1",
+      "label": "Question 1",
+      "default": "What is your return policy?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_2_a1",
+      "label": "Answer 1",
+      "default": "We accept returns within 30 days of purchase. Items must be unused and in original packaging."
+    },
+    {
+      "type": "text",
+      "id": "category_2_q2",
+      "label": "Question 2",
+      "default": "How do I start a return?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_2_a2",
+      "label": "Answer 2",
+      "default": "Contact our customer service team with your order number to initiate a return."
+    },
+    {
+      "type": "text",
+      "id": "category_2_q3",
+      "label": "Question 3",
+      "default": "Can I exchange an item?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_2_a3",
+      "label": "Answer 3",
+      "default": "Yes, exchanges are available for different sizes or colors within 30 days of purchase."
+    },
+    {
+      "type": "header",
+      "content": "Orders & account"
+    },
+    {
+      "type": "checkbox",
+      "id": "category_3_enabled",
+      "label": "Enable category",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "category_3_title",
+      "label": "Category title",
+      "default": "Orders & Account"
+    },
+    {
+      "type": "text",
+      "id": "category_3_q1",
+      "label": "Question 1",
+      "default": "How can I track my order?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_3_a1",
+      "label": "Answer 1",
+      "default": "You will receive a tracking number via email once your order ships. Use this to track your package."
+    },
+    {
+      "type": "text",
+      "id": "category_3_q2",
+      "label": "Question 2",
+      "default": "Can I modify my order after placing it?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_3_a2",
+      "label": "Answer 2",
+      "default": "Contact us immediately if you need to modify your order. We'll do our best to accommodate changes before shipping."
+    },
+    {
+      "type": "text",
+      "id": "category_3_q3",
+      "label": "Question 3",
+      "default": "Do I need an account to place an order?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_3_a3",
+      "label": "Answer 3",
+      "default": "No, you can checkout as a guest. However, creating an account allows you to track orders and save preferences."
+    },
+    {
+      "type": "header",
+      "content": "Fins & sizing"
+    },
+    {
+      "type": "checkbox",
+      "id": "category_4_enabled",
+      "label": "Enable category",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "category_4_title",
+      "label": "Category title",
+      "default": "Fins & Sizing"
+    },
+    {
+      "type": "text",
+      "id": "category_4_q1",
+      "label": "Question 1",
+      "default": "How do I choose the right fin size?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_4_a1",
+      "label": "Answer 1",
+      "default": "Fin size depends on your weight and surfing style. Check our sizing guide for detailed recommendations."
+    },
+    {
+      "type": "text",
+      "id": "category_4_q2",
+      "label": "Question 2",
+      "default": "What fin systems do you offer?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_4_a2",
+      "label": "Answer 2",
+      "default": "We offer fins compatible with FCS, Futures, and other major fin systems."
+    },
+    {
+      "type": "text",
+      "id": "category_4_q3",
+      "label": "Question 3",
+      "default": "Are your fins handcrafted?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_4_a3",
+      "label": "Answer 3",
+      "default": "Yes, all our fins are handcrafted using premium materials for optimal performance."
+    },
+    {
+      "type": "header",
+      "content": "Rainbow Fin Company"
+    },
+    {
+      "type": "checkbox",
+      "id": "category_5_enabled",
+      "label": "Enable category",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "category_5_title",
+      "label": "Category title",
+      "default": "Rainbow Fin Company"
+    },
+    {
+      "type": "text",
+      "id": "category_5_q1",
+      "label": "Question 1",
+      "default": "What makes Rainbow fins special?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_5_a1",
+      "label": "Answer 1",
+      "default": "Rainbow fins are known for their unique designs and high-quality construction using premium materials."
+    },
+    {
+      "type": "text",
+      "id": "category_5_q2",
+      "label": "Question 2",
+      "default": "Are Rainbow fins suitable for beginners?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_5_a2",
+      "label": "Answer 2",
+      "default": "Yes, Rainbow offers fins for all skill levels, from beginners to advanced surfers."
+    },
+    {
+      "type": "text",
+      "id": "category_5_q3",
+      "label": "Question 3",
+      "default": "Do you offer custom Rainbow fin designs?"
+    },
+    {
+      "type": "textarea",
+      "id": "category_5_a3",
+      "label": "Answer 3",
+      "default": "Contact us to discuss custom design options for Rainbow fins."
+    }
+  ],
+  "presets": [
+    {
+      "name": "FAQ accordion"
+    }
+  ]
+}
+{% endschema %}

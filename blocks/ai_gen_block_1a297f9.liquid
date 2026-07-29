@@ -1,0 +1,750 @@
+{% doc %}
+  @prompt
+    Create a custom product section for the MD3 fin product template with a cascading variant picker. The picker should work as follows: (1) Customer selects fin size first (Size option), (2) after selecting a size, only the color options that are in stock for that size appear dynamically, (3) each color option displays a mini thumbnail image of the fin in that color using the variant's assigned images. The section should feel casual and surfy, matching a premium surf brand aesthetic. It should integrate with existing Shopify variant data and variant images already assigned to each variant.
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-fin-picker-{{ ai_gen_id }} {
+    display: block;
+    width: 100%;
+    padding: {{ block.settings.section_padding }}px 0;
+  }
+
+  .ai-fin-picker__container-{{ ai_gen_id }} {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+
+  .ai-fin-picker__grid-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  .ai-fin-picker__media-{{ ai_gen_id }} {
+    position: sticky;
+    top: 120px;
+  }
+
+  .ai-fin-picker__main-image-{{ ai_gen_id }} {
+    width: 100%;
+    border-radius: {{ block.settings.image_border_radius }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.image_background }};
+  }
+
+  .ai-fin-picker__main-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .ai-fin-picker__info-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  .ai-fin-picker__title-{{ ai_gen_id }} {
+    font-family: {{ block.settings.title_font.family }}, {{ block.settings.title_font.fallback_families }};
+    font-weight: {{ block.settings.title_font.weight }};
+    font-size: {{ block.settings.title_size }}px;
+    line-height: 1.2;
+    color: {{ block.settings.text_color }};
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .ai-fin-picker__price-{{ ai_gen_id }} {
+    font-family: {{ block.settings.price_font.family }}, {{ block.settings.price_font.fallback_families }};
+    font-weight: {{ block.settings.price_font.weight }};
+    font-size: {{ block.settings.price_size }}px;
+    color: {{ block.settings.price_color }};
+  }
+
+  .ai-fin-picker__price-compare-{{ ai_gen_id }} {
+    text-decoration: line-through;
+    opacity: 0.6;
+    margin-left: 8px;
+  }
+
+  .ai-fin-picker__variant-section-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .ai-fin-picker__label-{{ ai_gen_id }} {
+    font-family: {{ block.settings.label_font.family }}, {{ block.settings.label_font.fallback_families }};
+    font-weight: {{ block.settings.label_font.weight }};
+    font-size: {{ block.settings.label_size }}px;
+    color: {{ block.settings.text_color }};
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+
+  .ai-fin-picker__size-options-{{ ai_gen_id }} {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .ai-fin-picker__size-button-{{ ai_gen_id }} {
+    padding: 12px 24px;
+    border: 2px solid {{ block.settings.button_border_color }};
+    background-color: {{ block.settings.button_background }};
+    color: {{ block.settings.button_text_color }};
+    font-family: {{ block.settings.label_font.family }}, {{ block.settings.label_font.fallback_families }};
+    font-weight: {{ block.settings.label_font.weight }};
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: {{ block.settings.button_border_radius }}px;
+  }
+
+  .ai-fin-picker__size-button-{{ ai_gen_id }}:hover {
+    border-color: {{ block.settings.button_hover_border }};
+    background-color: {{ block.settings.button_hover_background }};
+  }
+
+  .ai-fin-picker__size-button-{{ ai_gen_id }}.selected {
+    border-color: {{ block.settings.button_selected_border }};
+    background-color: {{ block.settings.button_selected_background }};
+    color: {{ block.settings.button_selected_text }};
+  }
+
+  .ai-fin-picker__size-button-{{ ai_gen_id }}:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  .ai-fin-picker__color-options-{{ ai_gen_id }} {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 16px;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.3s ease, max-height 0.3s ease;
+  }
+
+  .ai-fin-picker__color-options-{{ ai_gen_id }}.visible {
+    opacity: 1;
+    max-height: 1000px;
+  }
+
+  .ai-fin-picker__color-card-{{ ai_gen_id }} {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .ai-fin-picker__color-card-{{ ai_gen_id }}:hover {
+    transform: translateY(-2px);
+  }
+
+  .ai-fin-picker__color-card-{{ ai_gen_id }}.selected .ai-fin-picker__color-image-{{ ai_gen_id }} {
+    border-color: {{ block.settings.button_selected_border }};
+    box-shadow: 0 0 0 2px {{ block.settings.button_selected_border }};
+  }
+
+  .ai-fin-picker__color-image-{{ ai_gen_id }} {
+    width: 100%;
+    aspect-ratio: 1;
+    border: 2px solid {{ block.settings.button_border_color }};
+    border-radius: {{ block.settings.thumbnail_border_radius }}px;
+    overflow: hidden;
+    background-color: {{ block.settings.image_background }};
+    transition: all 0.2s ease;
+  }
+
+  .ai-fin-picker__color-image-{{ ai_gen_id }} img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .ai-fin-picker__color-name-{{ ai_gen_id }} {
+    font-size: 13px;
+    color: {{ block.settings.text_color }};
+    text-align: center;
+    text-transform: capitalize;
+  }
+
+  .ai-fin-picker__add-to-cart-{{ ai_gen_id }} {
+    margin-top: 12px;
+  }
+
+  .ai-fin-picker__add-button-{{ ai_gen_id }} {
+    width: 100%;
+    padding: 16px 32px;
+    background-color: {{ block.settings.cta_background }};
+    color: {{ block.settings.cta_text_color }};
+    border: 2px solid {{ block.settings.cta_border }};
+    font-family: {{ block.settings.label_font.family }}, {{ block.settings.label_font.fallback_families }};
+    font-weight: {{ block.settings.label_font.weight }};
+    font-size: 16px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-radius: {{ block.settings.button_border_radius }}px;
+  }
+
+  .ai-fin-picker__add-button-{{ ai_gen_id }}:hover:not(:disabled) {
+    background-color: {{ block.settings.cta_hover_background }};
+    border-color: {{ block.settings.cta_hover_border }};
+  }
+
+  .ai-fin-picker__add-button-{{ ai_gen_id }}:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .ai-fin-picker__description-{{ ai_gen_id }} {
+    font-size: 15px;
+    line-height: 1.6;
+    color: {{ block.settings.text_color }};
+    margin-top: 8px;
+  }
+
+  @media screen and (max-width: 989px) {
+    .ai-fin-picker__grid-{{ ai_gen_id }} {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+
+    .ai-fin-picker__media-{{ ai_gen_id }} {
+      position: relative;
+      top: 0;
+    }
+
+    .ai-fin-picker__title-{{ ai_gen_id }} {
+      font-size: {{ block.settings.title_size | times: 0.8 }}px;
+    }
+
+    .ai-fin-picker__color-options-{{ ai_gen_id }} {
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    }
+  }
+{% endstyle %}
+
+<fin-variant-picker-{{ ai_gen_id }} class="ai-fin-picker-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <div class="ai-fin-picker__container-{{ ai_gen_id }}">
+    <div class="ai-fin-picker__grid-{{ ai_gen_id }}">
+      <div class="ai-fin-picker__media-{{ ai_gen_id }}">
+        <div class="ai-fin-picker__main-image-{{ ai_gen_id }}">
+          {% if product.featured_image %}
+            <img
+              src="{{ product.featured_image | image_url: width: 800 }}"
+              alt="{{ product.featured_image.alt | escape }}"
+              width="{{ product.featured_image.width }}"
+              height="{{ product.featured_image.height }}"
+              loading="eager"
+              id="ai-fin-main-image-{{ ai_gen_id }}"
+            >
+          {% else %}
+            <div style="aspect-ratio: 1; display: flex; align-items: center; justify-content: center;">
+              {{ 'product-1' | placeholder_svg_tag }}
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <div class="ai-fin-picker__info-{{ ai_gen_id }}">
+        <h1 class="ai-fin-picker__title-{{ ai_gen_id }}">{{ product.title }}</h1>
+
+        <div class="ai-fin-picker__price-{{ ai_gen_id }}" id="ai-fin-price-{{ ai_gen_id }}">
+          <span class="ai-fin-picker__price-current-{{ ai_gen_id }}">
+            {{ product.selected_or_first_available_variant.price | money }}
+          </span>
+          {% if product.selected_or_first_available_variant.compare_at_price > product.selected_or_first_available_variant.price %}
+            <span class="ai-fin-picker__price-compare-{{ ai_gen_id }}">
+              {{ product.selected_or_first_available_variant.compare_at_price | money }}
+            </span>
+          {% endif %}
+        </div>
+
+        {% if block.settings.show_description and product.description != blank %}
+          <div class="ai-fin-picker__description-{{ ai_gen_id }}">
+            {{ product.description }}
+          </div>
+        {% endif %}
+
+        <div class="ai-fin-picker__variant-section-{{ ai_gen_id }}">
+          <label class="ai-fin-picker__label-{{ ai_gen_id }}">
+            Select Size
+          </label>
+          <div class="ai-fin-picker__size-options-{{ ai_gen_id }}" id="ai-fin-sizes-{{ ai_gen_id }}">
+          </div>
+        </div>
+
+        <div class="ai-fin-picker__variant-section-{{ ai_gen_id }}" id="ai-fin-color-section-{{ ai_gen_id }}" style="display: none;">
+          <label class="ai-fin-picker__label-{{ ai_gen_id }}">
+            Select Color
+          </label>
+          <div class="ai-fin-picker__color-options-{{ ai_gen_id }}" id="ai-fin-colors-{{ ai_gen_id }}">
+          </div>
+        </div>
+
+        <div class="ai-fin-picker__add-to-cart-{{ ai_gen_id }}">
+          <button
+            type="button"
+            class="ai-fin-picker__add-button-{{ ai_gen_id }}"
+            id="ai-fin-add-to-cart-{{ ai_gen_id }}"
+            disabled
+          >
+            Add to Cart
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</fin-variant-picker-{{ ai_gen_id }}>
+
+<script>
+  (function() {
+    class FinVariantPicker{{ ai_gen_id }} extends HTMLElement {
+      constructor() {
+        super();
+        this.productData = {{ product | json }};
+        this.selectedSize = null;
+        this.selectedColor = null;
+        this.selectedVariant = null;
+      }
+
+      connectedCallback() {
+        this.sizesContainer = this.querySelector('#ai-fin-sizes-{{ ai_gen_id }}');
+        this.colorsContainer = this.querySelector('#ai-fin-colors-{{ ai_gen_id }}');
+        this.colorSection = this.querySelector('#ai-fin-color-section-{{ ai_gen_id }}');
+        this.addToCartButton = this.querySelector('#ai-fin-add-to-cart-{{ ai_gen_id }}');
+        this.mainImage = this.querySelector('#ai-fin-main-image-{{ ai_gen_id }}');
+        this.priceContainer = this.querySelector('#ai-fin-price-{{ ai_gen_id }}');
+
+        this.buildVariantMap();
+        this.renderSizes();
+        this.setupAddToCart();
+      }
+
+      buildVariantMap() {
+        this.variantMap = {};
+        
+        this.productData.variants.forEach(variant => {
+          if (!variant.available) return;
+          
+          const size = variant.option1;
+          const color = variant.option2;
+          
+          if (!this.variantMap[size]) {
+            this.variantMap[size] = {};
+          }
+          
+          this.variantMap[size][color] = variant;
+        });
+      }
+
+      renderSizes() {
+        const sizes = Object.keys(this.variantMap).sort();
+        
+        sizes.forEach(size => {
+          const button = document.createElement('button');
+          button.className = 'ai-fin-picker__size-button-{{ ai_gen_id }}';
+          button.textContent = size;
+          button.dataset.size = size;
+          
+          button.addEventListener('click', () => this.selectSize(size));
+          
+          this.sizesContainer.appendChild(button);
+        });
+      }
+
+      selectSize(size) {
+        this.selectedSize = size;
+        this.selectedColor = null;
+        this.selectedVariant = null;
+        
+        this.querySelectorAll('.ai-fin-picker__size-button-{{ ai_gen_id }}').forEach(btn => {
+          btn.classList.toggle('selected', btn.dataset.size === size);
+        });
+        
+        this.renderColors(size);
+        this.updateAddToCartButton();
+      }
+
+      renderColors(size) {
+        this.colorsContainer.innerHTML = '';
+        
+        const colors = Object.keys(this.variantMap[size]);
+        
+        colors.forEach(color => {
+          const variant = this.variantMap[size][color];
+          
+          const card = document.createElement('div');
+          card.className = 'ai-fin-picker__color-card-{{ ai_gen_id }}';
+          card.dataset.color = color;
+          card.dataset.variantId = variant.id;
+          
+          const imageWrapper = document.createElement('div');
+          imageWrapper.className = 'ai-fin-picker__color-image-{{ ai_gen_id }}';
+          
+          if (variant.featured_image) {
+            const img = document.createElement('img');
+            img.src = variant.featured_image.src.replace(/(\.[^.]+)$/, '_200x$1');
+            img.alt = color;
+            img.loading = 'lazy';
+            imageWrapper.appendChild(img);
+          } else {
+            imageWrapper.innerHTML = '{{ 'product-1' | placeholder_svg_tag }}';
+          }
+          
+          const colorName = document.createElement('div');
+          colorName.className = 'ai-fin-picker__color-name-{{ ai_gen_id }}';
+          colorName.textContent = color;
+          
+          card.appendChild(imageWrapper);
+          card.appendChild(colorName);
+          
+          card.addEventListener('click', () => this.selectColor(color, variant));
+          
+          this.colorsContainer.appendChild(card);
+        });
+        
+        this.colorSection.style.display = 'block';
+        setTimeout(() => {
+          this.colorsContainer.classList.add('visible');
+        }, 10);
+      }
+
+      selectColor(color, variant) {
+        this.selectedColor = color;
+        this.selectedVariant = variant;
+        
+        this.querySelectorAll('.ai-fin-picker__color-card-{{ ai_gen_id }}').forEach(card => {
+          card.classList.toggle('selected', card.dataset.color === color);
+        });
+        
+        this.updateMainImage(variant);
+        this.updatePrice(variant);
+        this.updateAddToCartButton();
+      }
+
+      updateMainImage(variant) {
+        if (variant.featured_image && this.mainImage) {
+          this.mainImage.src = variant.featured_image.src.replace(/(\.[^.]+)$/, '_800x$1');
+          this.mainImage.alt = variant.name;
+        }
+      }
+
+      updatePrice(variant) {
+        const currentPrice = variant.price;
+        const comparePrice = variant.compare_at_price;
+        
+        let priceHTML = '<span class="ai-fin-picker__price-current-{{ ai_gen_id }}">';
+        priceHTML += Shopify.formatMoney(currentPrice, {{ shop.money_format | json }});
+        priceHTML += '</span>';
+        
+        if (comparePrice && comparePrice > currentPrice) {
+          priceHTML += '<span class="ai-fin-picker__price-compare-{{ ai_gen_id }}">';
+          priceHTML += Shopify.formatMoney(comparePrice, {{ shop.money_format | json }});
+          priceHTML += '</span>';
+        }
+        
+        this.priceContainer.innerHTML = priceHTML;
+      }
+
+      updateAddToCartButton() {
+        if (this.selectedVariant) {
+          this.addToCartButton.disabled = false;
+          this.addToCartButton.textContent = 'Add to Cart';
+        } else {
+          this.addToCartButton.disabled = true;
+          if (this.selectedSize) {
+            this.addToCartButton.textContent = 'Select a Color';
+          } else {
+            this.addToCartButton.textContent = 'Select Size & Color';
+          }
+        }
+      }
+
+      setupAddToCart() {
+        this.addToCartButton.addEventListener('click', () => {
+          if (!this.selectedVariant) return;
+          
+          this.addToCartButton.disabled = true;
+          this.addToCartButton.textContent = 'Adding...';
+          
+          fetch('/cart/add.js', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              id: this.selectedVariant.id,
+              quantity: 1
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            this.addToCartButton.textContent = 'Added!';
+            
+            setTimeout(() => {
+              this.updateAddToCartButton();
+            }, 2000);
+            
+            if (window.theme && window.theme.cart) {
+              window.theme.cart.refresh();
+            }
+            
+            document.dispatchEvent(new CustomEvent('cart:item-added'));
+          })
+          .catch(error => {
+            console.error('Error adding to cart:', error);
+            this.addToCartButton.textContent = 'Error - Try Again';
+            setTimeout(() => {
+              this.updateAddToCartButton();
+            }, 2000);
+          });
+        });
+      }
+    }
+
+    customElements.define('fin-variant-picker-{{ ai_gen_id }}', FinVariantPicker{{ ai_gen_id }});
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "MD3 fin variant picker",
+  "tag": null,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "section_padding",
+      "label": "Section padding",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "checkbox",
+      "id": "show_description",
+      "label": "Show product description",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Colors"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Price color",
+      "default": "#a42325"
+    },
+    {
+      "type": "color",
+      "id": "image_background",
+      "label": "Image background",
+      "default": "#f1f1f1"
+    },
+    {
+      "type": "header",
+      "content": "Typography"
+    },
+    {
+      "type": "font_picker",
+      "id": "title_font",
+      "label": "Title font",
+      "default": "barlow_condensed_n6"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "label": "Title size",
+      "min": 24,
+      "max": 72,
+      "step": 2,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "font_picker",
+      "id": "price_font",
+      "label": "Price font",
+      "default": "barlow_condensed_n6"
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "label": "Price size",
+      "min": 16,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "default": 28
+    },
+    {
+      "type": "font_picker",
+      "id": "label_font",
+      "label": "Label font",
+      "default": "barlow_condensed_n6"
+    },
+    {
+      "type": "range",
+      "id": "label_size",
+      "label": "Label size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Variant buttons"
+    },
+    {
+      "type": "color",
+      "id": "button_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Text color",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_border_color",
+      "label": "Border color",
+      "default": "#e6e6e6"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_background",
+      "label": "Hover background",
+      "default": "#f1f1f1"
+    },
+    {
+      "type": "color",
+      "id": "button_hover_border",
+      "label": "Hover border",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_selected_background",
+      "label": "Selected background",
+      "default": "#000000"
+    },
+    {
+      "type": "color",
+      "id": "button_selected_text",
+      "label": "Selected text",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "button_selected_border",
+      "label": "Selected border",
+      "default": "#000000"
+    },
+    {
+      "type": "range",
+      "id": "button_border_radius",
+      "label": "Button border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Add to cart button"
+    },
+    {
+      "type": "color",
+      "id": "cta_background",
+      "label": "Background",
+      "default": "#a42325"
+    },
+    {
+      "type": "color",
+      "id": "cta_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cta_border",
+      "label": "Border color",
+      "default": "#a42325"
+    },
+    {
+      "type": "color",
+      "id": "cta_hover_background",
+      "label": "Hover background",
+      "default": "#8a1d1f"
+    },
+    {
+      "type": "color",
+      "id": "cta_hover_border",
+      "label": "Hover border",
+      "default": "#8a1d1f"
+    },
+    {
+      "type": "header",
+      "content": "Images"
+    },
+    {
+      "type": "range",
+      "id": "image_border_radius",
+      "label": "Main image border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "thumbnail_border_radius",
+      "label": "Thumbnail border radius",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    }
+  ],
+  "presets": [
+    {
+      "name": "MD3 fin variant picker"
+    }
+  ]
+}
+{% endschema %}
